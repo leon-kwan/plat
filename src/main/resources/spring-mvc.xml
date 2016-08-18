@@ -1,0 +1,87 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:p="http://www.springframework.org/schema/p"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:util="http://www.springframework.org/schema/util" xmlns:mvc="http://www.springframework.org/schema/mvc"
+	xsi:schemaLocation="
+
+        http://www.springframework.org/schema/beans 
+        http://www.springframework.org/schema/beans/spring-beans-3.2.xsd
+        http://www.springframework.org/schema/context 
+        http://www.springframework.org/schema/context/spring-context-3.2.xsd
+        http://www.springframework.org/schema/mvc
+       http://www.springframework.org/schema/mvc/spring-mvc-3.2.xsd">
+       <mvc:interceptors>
+        <!-- 
+       <mvc:interceptor>
+			<mvc:mapping path="/weixin/sign" />
+			<bean class="com.aurora.weixing.weixin.interceptor.SignatureInterceptor"
+				p:token="${token}" />
+		</mvc:interceptor>
+		 -->
+       <mvc:interceptor>
+			<mvc:mapping path="/user/**"/>
+			<mvc:mapping path="/template/**"/>
+			<mvc:mapping path="/balance/**"/>
+			<mvc:mapping path="/horizon/**"/>
+			<mvc:mapping path="/classroom/**"/>
+			<mvc:mapping path="/metaphorContest/**"/>
+			
+			<bean class="com.aurora.weixing.weixin.interceptor.WeiXinInterceptor" />
+		</mvc:interceptor>
+		
+         <mvc:interceptor>
+			<mvc:mapping path="/order/**"/>
+			<mvc:mapping path="/products/cards/**"/>
+			<bean class="com.aurora.weixing.weixin.interceptor.SignInterceptor" />
+		</mvc:interceptor>
+		
+       </mvc:interceptors>
+		
+		
+	<bean id="viewResolver"
+		class="org.springframework.web.servlet.view.freemarker.FreeMarkerViewResolver">
+		<property name="cache" value="true" />
+		<property name="prefix" value="" />
+		<property name="suffix" value=".ftl" />
+		<property name="contentType" value="text/html;charset=UTF-8"></property>
+		<property name="requestContextAttribute" value="request" />
+		<property name="exposeSpringMacroHelpers" value="true" />
+		<property name="exposeRequestAttributes" value="true" />
+		<property name="exposeSessionAttributes" value="true" />
+	</bean>
+	<bean id="multipartResolver"
+		class="org.springframework.web.multipart.commons.CommonsMultipartResolver">
+		<property name="maxUploadSize" value="629145600" />
+		<property name="maxInMemorySize">
+			<value>4096</value>
+		</property>
+	</bean>
+
+	<bean id="freemarkerConfiguration"
+		class="org.springframework.beans.factory.config.PropertiesFactoryBean">
+		<property name="location" value="classpath:freemarker.properties" />
+	</bean>
+
+
+	<bean id="freemarkerConfig"
+		class="org.springframework.web.servlet.view.freemarker.FreeMarkerConfigurer">
+		<property name="templateLoaderPath" value="/WEB-INF/view/" />
+		<property name="freemarkerSettings" ref="freemarkerConfiguration" />
+		<property name="defaultEncoding" value="utf-8" />
+		 <property name="freemarkerVariables">  
+	        <map>  
+	            <entry key="serverUrl" value="${server.url}" />
+                <entry key="resourceUrl" value="${resource.url}" />
+                <entry key="webSocket" value="${web.socket}"></entry>
+	        </map>  	
+	    </property>  
+	</bean>
+	<mvc:view-controller path="/" view-name="forward:/user/index"/>
+	<mvc:default-servlet-handler />
+	<mvc:resources location="/images/**" mapping="/images/" />
+	<bean class="com.aurora.weixing.weixin.send.RequestService"  p:appId="${weixin.app_id}" p:appSecret="${weixin.app_secret}" p:urlBase="${weixin.url.base}"  p:urlAuthorize="${weixin.url.authorize}"/>
+	<bean class="com.aurora.weixing.weixin.wxap.util.WxConfig"  p:APP_ID="${weixin.app_id}" p:APP_SECRET="${weixin.app_secret}" p:PARTNER="${weixin.pay.partner}"  p:PARTNER_KEY="${weixin.pay.partner_key}"/>
+	<!--  <bean id="initJob" lazy-init="false" class="com.aurora.weixing.weixin.CacheLoder" init-method="init" /> -->
+	
+</beans>
+
